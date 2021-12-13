@@ -2,7 +2,7 @@ from yahoo_oauth import OAuth2
 import yahoo_fantasy_api as yfa
 import schedule
 import time
-sc = OAuth2(None, None, from_file='./auth.json')
+sc = OAuth2(None, None, from_file='../auth/auth.json')
 
 if not sc.token_is_valid():
     print("Refreshing Token...")
