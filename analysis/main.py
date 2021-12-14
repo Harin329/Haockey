@@ -15,3 +15,9 @@ print("League Standing: " + str(league.standings()))
 
 team = yfa.Team(sc, '411.l.96677.t.2')
 print("Team Roster: " + str(team.roster()))
+
+print("==================================Analysis====================================")
+# https://statsapi.web.nhl.com/api/v1/people/8477474/stats/?stats=gameLog&season=20212022
+
+top50 = league.taken_players()
+print(top50)
