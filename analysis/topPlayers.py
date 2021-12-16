@@ -41,23 +41,6 @@ def calculateFantasyPoints(player):
     return totalPoint
 
 print("==================================Analysis====================================")
-playerItem = []
-playerID = []
-
-for num in range(5):
-    url = "https://fantasysports.yahooapis.com/fantasy/v2/league/411.l.96677/players;start=" + str(num * 25) + ";sort=PTS;count=25/percent_owned"
-    print(url)
-    response = sc.session.get(url, params={'format': 'json'})
-    res = response.json()
-
-    players = list(res['fantasy_content']['league'][1]['players'].values())
-    for player in players[:-1]:
-        playerItem.append({ "id": player['player'][0][1]['player_id'], "name": player['player'][0][2]['name']['full'] })
-        playerID.append(player['player'][0][1]['player_id'])
-
-with open("players.txt", "w") as txt_file:
-    for line in playerItem:
-        txt_file.write(str(line) + "\n")
 
 playerMapping = {}
 
