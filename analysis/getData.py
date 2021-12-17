@@ -1,21 +1,7 @@
-import logging
-from logging import config
 import requests
-from yahoo_oauth import OAuth2
-import yahoo_fantasy_api as yfa
-import time
 import csv
-from csv import reader
 import datetime
-from datetime import timedelta
-import matplotlib.pyplot as plt
 import pandas as pd
-
-sc = OAuth2(None, None, from_file='../auth/auth.json')
-
-gm = yfa.Game(sc, 'nhl')
-league = yfa.League(sc, '411.l.96677')
-team = yfa.Team(sc, '411.l.96677.t.2')
 
 definitions = {
     'ID': '8480800',
@@ -71,6 +57,33 @@ definitions = {
     'shifts_W': '',
     'fanPts_W': '',
     'truth': 0,
+}
+
+baseWeekInfo = {
+    "timeOnIce" : 0,
+    "assists" : 0,
+    "goals" : 0,
+    "pim" : 0,
+    "shots" : 0,
+    "games" : 0,
+    "hits" : 0,
+    "powerPlayGoals" : 0,
+    "powerPlayPoints" : 0,
+    "powerPlayTimeOnIce" : 0,
+    "evenTimeOnIce" : 0,
+    "penaltyMinutes" : 0,
+    "faceOffPct" : 0,
+    "shotPct" : 0,
+    "gameWinningGoals" : 0,
+    "overTimeGoals" : 0,
+    "shortHandedGoals" : 0,
+    "shortHandedPoints" : 0,
+    "shortHandedTimeOnIce" : 0,
+    "blocked" : 0,
+    "plusMinus" : 0,
+    "points" : 0,
+    "shifts" : 0,
+    "fanPts" : 0,
 }
 
 def calculateFantasyPoints(player):
@@ -134,8 +147,8 @@ playerID = []
 startDate = datetime.datetime(2021, 10, 12)
 
 with open('players.csv', mode ='r') as playersFile:
-    reader = csv.reader(playersFile)
-    for player in reader:
+    playerReader = csv.reader(playersFile)
+    for player in playerReader:
         if player[2] != 'G':
             print("Parsing player: " + player[1])
             playerID.append(player[0])
@@ -146,33 +159,8 @@ with open('players.csv', mode ='r') as playersFile:
 
             sunday = datetime.datetime(2021, 10, 17)
             
-            weekInfo = {
-                "timeOnIce" : 0,
-                "assists" : 0,
-                "goals" : 0,
-                "pim" : 0,
-                "shots" : 0,
-                "games" : 0,
-                "hits" : 0,
-                "powerPlayGoals" : 0,
-                "powerPlayPoints" : 0,
-                "powerPlayTimeOnIce" : 0,
-                "evenTimeOnIce" : 0,
-                "penaltyMinutes" : 0,
-                "faceOffPct" : 0,
-                "shotPct" : 0,
-                "gameWinningGoals" : 0,
-                "overTimeGoals" : 0,
-                "shortHandedGoals" : 0,
-                "shortHandedPoints" : 0,
-                "shortHandedTimeOnIce" : 0,
-                "blocked" : 0,
-                "plusMinus" : 0,
-                "points" : 0,
-                "shifts" : 0,
-                "fanPts" : 0,
-            }
-            seasonInfo = weekInfo.copy()
+            weekInfo = baseWeekInfo.copy()
+            seasonInfo = baseWeekInfo.copy()
             lastWeek = None
             resultPPG = 0
 
@@ -195,32 +183,7 @@ with open('players.csv', mode ='r') as playersFile:
                     
                     sunday += datetime.timedelta(days=7)
                     resultPPG = 0
-                    weekInfo = {
-                        "timeOnIce" : 0,
-                        "assists" : 0,
-                        "goals" : 0,
-                        "pim" : 0,
-                        "shots" : 0,
-                        "games" : 0,
-                        "hits" : 0,
-                        "powerPlayGoals" : 0,
-                        "powerPlayPoints" : 0,
-                        "powerPlayTimeOnIce" : 0,
-                        "evenTimeOnIce" : 0,
-                        "penaltyMinutes" : 0,
-                        "faceOffPct" : 0,
-                        "shotPct" : 0,
-                        "gameWinningGoals" : 0,
-                        "overTimeGoals" : 0,
-                        "shortHandedGoals" : 0,
-                        "shortHandedPoints" : 0,
-                        "shortHandedTimeOnIce" : 0,
-                        "blocked" : 0,
-                        "plusMinus" : 0,
-                        "points" : 0,
-                        "shifts" : 0,
-                        "fanPts" : 0,
-                    }
+                    weekInfo = baseWeekInfo.copy()
                     weekInfo = addGame(weekInfo, game['stat'])
                     seasonInfo = addGame(seasonInfo, game['stat'])
                     resultPPG += game['stat']['powerPlayGoals']
