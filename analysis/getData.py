@@ -70,6 +70,7 @@ definitions = {
     'points_W': '',
     'shifts_W': '',
     'fanPts_W': '',
+    'truth': 0,
 }
 
 def calculateFantasyPoints(player):
@@ -106,24 +107,24 @@ print("==================================Get Data===============================
 # [Stats @ Week X] --> [PPG @ Week X + 1 ]
 
 # Get active NHL players
-# playerItem = []
+playerItem = []
 
-# response = requests.get('https://statsapi.web.nhl.com/api/v1/teams?expand=team.roster')
-# res = response.json()
+response = requests.get('https://statsapi.web.nhl.com/api/v1/teams?expand=team.roster')
+res = response.json()
 
-# teams = res['teams']
-# for team in teams:
-#     print(team['name'])
-#     roster = team['roster']['roster']
-#     for player in roster:
-#         print(player['person']['fullName'])
-#         playerItem.append([player['person']['id'], player['person']['fullName'], player['position']['code'], team['abbreviation']])
+teams = res['teams']
+for team in teams:
+    print(team['name'])
+    roster = team['roster']['roster']
+    for player in roster:
+        print(player['person']['fullName'])
+        playerItem.append([player['person']['id'], player['person']['fullName'], player['position']['code'], team['abbreviation']])
 
-# with open("players.csv", "w") as f:
-#     writer = csv.writer(f)
-#     for player in playerItem:
-#         writer.writerow(player)
-# print("Active players saved to players.csv!")
+with open("players.csv", "w") as f:
+    writer = csv.writer(f)
+    for player in playerItem:
+        writer.writerow(player)
+print("Active players saved to players.csv!")
 
 
 
@@ -136,6 +137,7 @@ with open('players.csv', mode ='r') as playersFile:
     reader = csv.reader(playersFile)
     for player in reader:
         if player[2] != 'G':
+            print("Parsing player: " + player[1])
             playerID.append(player[0])
             response = requests.get('https://statsapi.web.nhl.com/api/v1/people/' + player[0] + '/stats?stats=gameLog&season=20212022')
             res = response.json()
@@ -171,7 +173,9 @@ with open('players.csv', mode ='r') as playersFile:
                 "fanPts" : 0,
             }
             seasonInfo = weekInfo.copy()
+            lastWeek = None
             resultPPG = 0
+
 
             gameList = list(res['stats'][0]['splits'])
             gameList.reverse()
@@ -182,11 +186,12 @@ with open('players.csv', mode ='r') as playersFile:
                     seasonInfo = addGame(seasonInfo, game['stat'])
                     resultPPG += game['stat']['powerPlayGoals']
                 else:
-                    print('Write to Week')
+                    if (lastWeek != None):
+                        # print('Write to Week: ' + str(sunday))
+                        df.loc[len(df)] = lastWeek + [resultPPG]
+
                     row = playerInfo + list(seasonInfo.values()) + list(weekInfo.values())
-                    df.loc[len(df)] = row
-                    # print(row)
-                    # print(resultPPG)
+                    lastWeek = row
                     
                     sunday += datetime.timedelta(days=7)
                     resultPPG = 0
@@ -220,12 +225,6 @@ with open('players.csv', mode ='r') as playersFile:
                     seasonInfo = addGame(seasonInfo, game['stat'])
                     resultPPG += game['stat']['powerPlayGoals']
 
-
-print(df.head(100))
-
-
-# Append processed data into csv file
-# with open("stats.csv", "w") as statsFile:
-#     writer = csv.writer(statsFile)
-#     for player in playerItem:
-#         writer.writerow(player)
+print(df.head(10))
+df.to_csv('data.csv', index=False)
+print("Data saved to data.csv!")
