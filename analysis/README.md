@@ -3,11 +3,10 @@
 ## Problem Statement
 I want to pick up players who are about to score many power play goals in the coming week.
 
-## Phase Plans
-### Phase 1 - Pre-Processing & Feature Engineering
+## Pre-Processing & Feature Engineering
 Feature Engineering - Finding the tightest correlated metrics that indicate a player is about to score many power play goals with ensemble method.
 
-Features Considered:
+### Features Considered:
 - timeOnIce
 - assists
 - goals
@@ -58,12 +57,12 @@ Features Considered:
 - shifts_W (Last Week)
 - fanPts_W (Last Week)
 
-### Phase 2 - Prediction Presentation
-Webapp/CLI - Displaying top player predictions for the upcoming week.
-
-### Phase 3 - Result Validation
-Webapp/CLI - Displaying historical results for predicted players, compared to a set of random players from the top 300.
-
+### Libraries Used
+- scikit-feature
+    - Fisher Score
+    - ReliefF
+    - Trace Ratio
+- ???
 
 ## Results
 ### Feature Engineering
@@ -78,5 +77,10 @@ Features identified to be an early indicator of power play goals:
 - upcomingDifficulty
 - powerPlayTimeOnIce_W
 
-### Presentation
+### Prediction Steps
+To predict:
+1. Run `getData.py` to get player data
+2. Run `selectFeature.py` to select features
+
 ### Validation
+The validation of the predictions can be viewed here: 
