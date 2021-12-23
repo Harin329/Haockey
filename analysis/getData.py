@@ -50,7 +50,50 @@ def convertTimeToSeconds(timeString):
     timeList = timeString.split(':')
     return int(timeList[0]) * 60 + int(timeList[1])
 
-def addGame(current, newGameMap):
+
+# Calculate Matchup Difficulty
+def calculateDifficulty(newGame):
+    base = 50
+    homeTeam = newGame['isHome']
+    team = newGame['team']['link']
+    opponent = newGame['opponent']['link']
+
+    # Home Advantage
+    if homeTeam:
+        base = 40
+    else:
+        base = 60
+
+    responseTeam = requests.get('https://statsapi.web.nhl.com' + team + '?expand=team.stats')
+    responseOpp = requests.get('https://statsapi.web.nhl.com' + opponent + '?expand=team.stats')
+    resTeam = responseTeam.json()
+    resOpp = responseOpp.json()
+    statTeam = resTeam['teams'][0]['teamStats'][0]['splits'][0]['stat']
+    statOpp = resOpp['teams'][0]['teamStats'][0]['splits'][0]['stat']
+
+    # Team Strength Difference
+    evenTeam = statTeam['goalsPerGame'] * 10
+    evenOpp = statOpp['goalsAgainstPerGame'] * 10
+    base += (evenTeam + evenOpp)
+
+    shotTeam = statTeam['shotsPerGame'] * 5
+    shotOpp = statOpp['shotsAllowed'] * 5
+    base += (shotTeam + shotOpp)
+
+    # Team Power Play Strength Difference
+    percentTeam = float(statTeam['powerPlayPercentage'])
+    percentOpp = float(statTeam['penaltyKillPercentage'])
+    base += (percentTeam + (100 - percentOpp))
+
+    ppTeam = statTeam['powerPlayGoals'] * 10
+    ppOpp = statOpp['powerPlayGoalsAgainst'] * 10
+    base += (ppTeam + ppOpp)
+
+    return base
+
+# Create a Game Data Point
+def addGame(current, newGame, type):
+    newGameMap = newGame['stat']
     for key in newGameMap:
         if key in ['timeOnIce', 'powerPlayTimeOnIce', 'evenTimeOnIce', 'shortHandedTimeOnIce']:
             current[key] = current[key] + convertTimeToSeconds(newGameMap[key])
@@ -59,6 +102,8 @@ def addGame(current, newGameMap):
         else:
             current[key] = current[key] + int(newGameMap[key])
     current['fanPts'] = current['fanPts'] + calculateFantasyPoints(newGameMap)
+    if (type == 'W'):
+        current['upcomingDifficulty'] = (current['upcomingDifficulty'] + calculateDifficulty(newGame)) / 2
     return current
 
 print("==================================Get Data====================================")
@@ -105,6 +150,7 @@ with open('players.csv', mode ='r') as playersFile:
             sunday = datetime.datetime(2021, 10, 17)
             
             weekInfo = baseWeekInfo.copy()
+            weekInfo['upcomingDifficulty'] = 0
             seasonInfo = baseWeekInfo.copy()
             lastWeek = None
             resultPPG = 0
@@ -115,8 +161,8 @@ with open('players.csv', mode ='r') as playersFile:
 
             for game in gameList:
                 if (datetime.datetime.strptime(game['date'], '%Y-%m-%d')) <= sunday:
-                    weekInfo = addGame(weekInfo, game['stat'])
-                    seasonInfo = addGame(seasonInfo, game['stat'])
+                    weekInfo = addGame(weekInfo, game, 'W')
+                    seasonInfo = addGame(seasonInfo, game, 'S')
                     resultPPG += game['stat']['powerPlayGoals']
                 else:
                     if (lastWeek != None):
@@ -129,8 +175,9 @@ with open('players.csv', mode ='r') as playersFile:
                     sunday += datetime.timedelta(days=7)
                     resultPPG = 0
                     weekInfo = baseWeekInfo.copy()
-                    weekInfo = addGame(weekInfo, game['stat'])
-                    seasonInfo = addGame(seasonInfo, game['stat'])
+                    weekInfo['upcomingDifficulty'] = 0
+                    weekInfo = addGame(weekInfo, game, 'W')
+                    seasonInfo = addGame(seasonInfo, game, 'S')
                     resultPPG += game['stat']['powerPlayGoals']
 
 print(df.head(10))

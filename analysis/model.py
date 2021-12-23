@@ -27,6 +27,7 @@ definitions = {
     "points" : 3,
     "shifts" : 32,
     "fanPts" : 0,
+    "upcomingDifficulty": 0,
     'timeOnIce_W': '',
     'assists_W': '',
     'goals_W': '',
