@@ -6,6 +6,8 @@ I want to pick up players who are about to score many power play goals in the co
 ## Pre-Processing & Feature Engineering
 Feature Engineering - Finding the tightest correlated metrics that indicate a player is about to score many power play goals with ensemble method.
 
+The emphasis will be on BorutaPy vs other libraries & algorithms for feature selection.
+
 ### Features Considered:
 - timeOnIce
 - assists
@@ -62,7 +64,8 @@ Feature Engineering - Finding the tightest correlated metrics that indicate a pl
     - Fisher Score
     - ReliefF
     - Trace Ratio
-- ???
+- boruta_py
+- scikit-rebate
 
 ## Results
 ### Feature Engineering
@@ -76,11 +79,20 @@ Features identified to be an early indicator of power play goals:
 - evenTimeOnIce
 - upcomingDifficulty
 - powerPlayTimeOnIce_W
+- assists_W                 (BorutaPy)
+- timeOnIce_W               (BorutaPy)
+- shots                     (BorutaPy)
+- pim                       (BorutaPy)
+- goals_W                   (BorutaPy)
+- shots_W
+- points_W
 
 ### Prediction Steps
 To predict:
 1. Run `getData.py` to get player data
 2. Run `selectFeature.py` to select features
+3. Add Selected Features to `predict.py`
+3. Run `predict.py` to predict
 
 ### Validation
 The validation of the predictions can be viewed here: 
