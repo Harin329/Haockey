@@ -98,6 +98,7 @@ Features identified to be an early indicator of power play goals:
 
 
 ### Prediction Steps
+Run on Sunday after last game of the week!
 To predict:
 1. Run `getData.py` to get player data
 2. Run `getFeatures.py` to select features
