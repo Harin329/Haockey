@@ -117,3 +117,9 @@ for feature in idx[:5]:
 print("==================================ensemble====================================")
 
 print(list(ensembleMap.keys()))
+
+with open("data/features.csv", "w") as f:
+    writer = csv.writer(f)
+    for feature in list(ensembleMap.keys()):
+        writer.writerow([feature])
+print("Features Saved to predictions.csv!")

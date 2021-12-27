@@ -1,24 +1,12 @@
 import pandas as pd
 import csv
 
-features = [
-    "powerPlayTimeOnIce_W",
-    "powerPlayGoals",
-    "powerPlayTimeOnIce",
-    "goals",
-    "powerPlayPoints",
-    "timeOnIce",
-    "evenTimeOnIce",
-    "timeOnIce_W",
-    "evenTimeOnIce_W",
-    "pim_W",
-    "goals_W",
-    "games",
-    "hits",
-    "games_W",
-    "assists_W",
-    "shifts_W",
-]
+features = []
+
+with open('data/features.csv', mode ='r') as featureFile:
+    featureReader = csv.reader(featureFile)
+    for feature in featureReader:
+        features.append(feature)
 
 print(features)
 
@@ -27,9 +15,9 @@ playerCount = df.shape[0]
 playerMap = {}
 
 for feature in features:
-    print("==================================" + feature + "====================================")
+    print("==================================" + feature[0] + "====================================")
     start = playerCount
-    sorted_df = df.sort_values(by=[feature], ascending=False).loc[:, ["Name", "Position", "Team", feature, "upcomingDifficulty"]]
+    sorted_df = df.sort_values(by=[feature[0]], ascending=False).loc[:, ["Name", "Position", "Team", feature[0], "upcomingDifficulty"]]
     print(sorted_df.head(10))
     for player in sorted_df.itertuples():
         playerMap[player[1]] = playerMap.get(player[1], 0) + start
