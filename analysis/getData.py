@@ -2,34 +2,7 @@ import requests
 import csv
 import datetime
 import pandas as pd
-from model import definitions
-
-baseWeekInfo = {
-    "timeOnIce" : 0,
-    "assists" : 0,
-    "goals" : 0,
-    "pim" : 0,
-    "shots" : 0,
-    "games" : 0,
-    "hits" : 0,
-    "powerPlayGoals" : 0,
-    "powerPlayPoints" : 0,
-    "powerPlayTimeOnIce" : 0,
-    "evenTimeOnIce" : 0,
-    "penaltyMinutes" : 0,
-    "faceOffPct" : 0,
-    "shotPct" : 0,
-    "gameWinningGoals" : 0,
-    "overTimeGoals" : 0,
-    "shortHandedGoals" : 0,
-    "shortHandedPoints" : 0,
-    "shortHandedTimeOnIce" : 0,
-    "blocked" : 0,
-    "plusMinus" : 0,
-    "points" : 0,
-    "shifts" : 0,
-    "fanPts" : 0,
-}
+from model import definitions, baseWeekInfo, current
 
 def calculateFantasyPoints(player):
     totalPoint = 0
@@ -52,17 +25,21 @@ def convertTimeToSeconds(timeString):
 
 
 # Calculate Matchup Difficulty
-def calculateDifficulty(newGame):
+def calculateDifficulty(newGame, playerTeam):
     base = 50
-    homeTeam = newGame['isHome']
-    team = newGame['team']['link']
-    opponent = newGame['opponent']['link']
+    homeTeam = newGame['home']['team']['id'] == playerTeam
+    team = None
+    opponent = None
 
     # Home Advantage
     if homeTeam:
-        base = 40
-    else:
         base = 60
+        team = newGame['home']['team']['link']
+        opponent = newGame['away']['team']['link']
+    else:
+        base = 40
+        team = newGame['away']['team']['link']
+        opponent = newGame['home']['team']['link']
 
     responseTeam = requests.get('https://statsapi.web.nhl.com' + team + '?expand=team.stats')
     responseOpp = requests.get('https://statsapi.web.nhl.com' + opponent + '?expand=team.stats')
@@ -92,7 +69,7 @@ def calculateDifficulty(newGame):
     return base
 
 # Create a Game Data Point
-def addGame(current, newGame, type):
+def addGame(current, newGame):
     newGameMap = newGame['stat']
     for key in newGameMap:
         if key in ['timeOnIce', 'powerPlayTimeOnIce', 'evenTimeOnIce', 'shortHandedTimeOnIce']:
@@ -102,8 +79,6 @@ def addGame(current, newGame, type):
         else:
             current[key] = current[key] + int(newGameMap[key])
     current['fanPts'] = current['fanPts'] + calculateFantasyPoints(newGameMap)
-    if (type == 'W'):
-        current['upcomingDifficulty'] = (current['upcomingDifficulty'] + calculateDifficulty(newGame)) / 2
     return current
 
 print("==================================Get Data====================================")
@@ -123,7 +98,7 @@ for team in teams:
         print(player['person']['fullName'])
         playerItem.append([player['person']['id'], player['person']['fullName'], player['position']['code'], team['abbreviation']])
 
-with open("players.csv", "w") as f:
+with open("data/players.csv", "w") as f:
     writer = csv.writer(f)
     for player in playerItem:
         writer.writerow(player)
@@ -133,15 +108,14 @@ print("Active players saved to players.csv!")
 
 # For each player, extract format in form of sample data above
 df = pd.DataFrame(columns=definitions.keys())
-playerID = []
+current_df = pd.DataFrame(columns=current.keys())
 startDate = datetime.datetime(2021, 10, 12)
 
-with open('players.csv', mode ='r') as playersFile:
+with open('data/players.csv', mode ='r') as playersFile:
     playerReader = csv.reader(playersFile)
     for player in playerReader:
         if player[2] != 'G':
             print("Parsing player: " + player[1])
-            playerID.append(player[0])
             response = requests.get('https://statsapi.web.nhl.com/api/v1/people/' + player[0] + '/stats?stats=gameLog&season=20212022')
             res = response.json()
 
@@ -150,36 +124,63 @@ with open('players.csv', mode ='r') as playersFile:
             sunday = datetime.datetime(2021, 10, 17)
             
             weekInfo = baseWeekInfo.copy()
-            weekInfo['upcomingDifficulty'] = 0
             seasonInfo = baseWeekInfo.copy()
+            weekDifficulty = 0
             lastWeek = None
             resultPPG = 0
 
-
             gameList = list(res['stats'][0]['splits'])
             gameList.reverse()
-
+            
+            # For game in week X
             for game in gameList:
                 if (datetime.datetime.strptime(game['date'], '%Y-%m-%d')) <= sunday:
-                    weekInfo = addGame(weekInfo, game, 'W')
-                    seasonInfo = addGame(seasonInfo, game, 'S')
+                    weekInfo = addGame(weekInfo, game)
+                    seasonInfo = addGame(seasonInfo, game)
                     resultPPG += game['stat']['powerPlayGoals']
                 else:
                     if (lastWeek != None):
+                        # Calculate Difficulty for Week X + 1
+                        teamID = game['team']['id']
+                        responseUpcoming = requests.get('https://statsapi.web.nhl.com/api/v1/schedule?teamId=' + str(teamID) + '&startDate=' + startDate.strftime("%Y-%m-%d") + '&endDate=' + sunday.strftime("%Y-%m-%d"))
+                        upcomingRes = responseUpcoming.json()
+
+                        for upcomingGame in upcomingRes['dates']:
+                            weekDifficulty = (weekDifficulty + calculateDifficulty(upcomingGame['games'][0]['teams'], teamID)) / 2
+
                         # print('Write to Week: ' + str(sunday))
-                        df.loc[len(df)] = lastWeek + [resultPPG]
+                        df.loc[len(df)] = lastWeek + [weekDifficulty] + [resultPPG]
 
                     row = playerInfo + list(seasonInfo.values()) + list(weekInfo.values())
                     lastWeek = row
                     
                     sunday += datetime.timedelta(days=7)
+                    startDate = sunday - datetime.timedelta(days=6)
                     resultPPG = 0
                     weekInfo = baseWeekInfo.copy()
-                    weekInfo['upcomingDifficulty'] = 0
-                    weekInfo = addGame(weekInfo, game, 'W')
-                    seasonInfo = addGame(seasonInfo, game, 'S')
+                    weekInfo = addGame(weekInfo, game)
+                    seasonInfo = addGame(seasonInfo, game)
                     resultPPG += game['stat']['powerPlayGoals']
+                    weekDifficulty = 0
+
+            
+            # Write last week
+            if (lastWeek != None):
+                # Calculate Difficulty for Week X + 1
+                teamID = game['team']['id']
+                responseUpcoming = requests.get('https://statsapi.web.nhl.com/api/v1/schedule?teamId=' + str(teamID) + '&startDate=' + startDate.strftime("%Y-%m-%d") + '&endDate=' + sunday.strftime("%Y-%m-%d"))
+                upcomingRes = responseUpcoming.json()
+
+                row = playerInfo + list(seasonInfo.values()) + list(weekInfo.values())
+
+                for upcomingGame in upcomingRes['dates']:
+                    weekDifficulty = (weekDifficulty + calculateDifficulty(upcomingGame['games'][0]['teams'], teamID)) / 2
+
+                current_df.loc[len(current_df)] = row + [weekDifficulty]
+
+                
 
 print(df.head(10))
-df.to_csv('data.csv', index=False)
+df.to_csv('data/data.csv', index=False)
+current_df.to_csv('data/current_data.csv')
 print("Data saved to data.csv!")

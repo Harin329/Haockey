@@ -33,7 +33,6 @@ The emphasis will be on BorutaPy vs other libraries & algorithms for feature sel
 - points
 - shifts
 - fanPts
-- upcomingDifficulty - metric indicating the difficulty of a player's schedule for the upcoming week
 - timeOnIce_W (Last Week)
 - assists_W (Last Week)
 - goals_W (Last Week)
@@ -58,6 +57,16 @@ The emphasis will be on BorutaPy vs other libraries & algorithms for feature sel
 - points_W (Last Week)
 - shifts_W (Last Week)
 - fanPts_W (Last Week)
+- upcomingDifficulty - metric indicating the difficulty of a player's schedule for the upcoming week
+
+## Timeline
+Week 1:
+- Season Stats
+- Week Stats
+
+Week 2:
+- Schedule Difficulty
+- PPG Scored
 
 ### Libraries Used
 - scikit-feature
@@ -70,29 +79,30 @@ The emphasis will be on BorutaPy vs other libraries & algorithms for feature sel
 ## Results
 ### Feature Engineering
 Features identified to be an early indicator of power play goals:
-- powerPlayPoints_W
-- powerPlayGoals
+- powerPlayTimeOnIce_W
+- powerPlayGoals            (BorutaPy)
 - powerPlayTimeOnIce
 - goals
 - powerPlayPoints
 - timeOnIce
 - evenTimeOnIce
-- upcomingDifficulty
-- powerPlayTimeOnIce_W
-- assists_W                 (BorutaPy)
-- timeOnIce_W               (BorutaPy)
-- shots                     (BorutaPy)
-- pim                       (BorutaPy)
+- timeOnIce_W
+- evenTimeOnIce_W
+- pim_W                     (BorutaPy)
 - goals_W                   (BorutaPy)
-- shots_W
-- points_W
+- games                     (BorutaPy)
+- hits                      (BorutaPy)
+- games_W
+- assists_W
+- shifts_W
+
 
 ### Prediction Steps
 To predict:
 1. Run `getData.py` to get player data
-2. Run `selectFeature.py` to select features
-3. Add Selected Features to `predict.py`
-3. Run `predict.py` to predict
+2. Run `getFeatures.py` to select features
+3. Add Selected Features to `getPrediction.py`
+3. Run `getPrediction.py` to predict
 
 ### Validation
 The validation of the predictions can be viewed here: 

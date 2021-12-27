@@ -9,11 +9,12 @@ X = []
 y = []
 ensembleMap = {}
 
-with open('data.csv', mode ='r') as gamesFile:
+with open('data/data.csv', mode ='r') as gamesFile:
     gameReader = csv.reader(gamesFile)
     for game in gameReader:
-        X.append(game[4:-1])
-        y.append(game[-1])
+        if (game[0] != 'ID'):
+            X.append(game[4:-1])
+            y.append(game[-1])
 
 n_samples, n_features = np.shape(X)
 n_labels = np.shape(y)
