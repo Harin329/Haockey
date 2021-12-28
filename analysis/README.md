@@ -102,8 +102,11 @@ Run on Sunday after last game of the week!
 To predict:
 1. Run `getData.py` to get player data
 2. Run `getFeatures.py` to select features
-3. Add Selected Features to `getPrediction.py`
 3. Run `getPrediction.py` to predict
+4. Run `results.py` to get benchmark results
+
+result_baseline will contain the week X 'control' results (PPG scored last week) as well as being used as week X + 1 'truth' results.
+result_prediction will contain the week X 'prediction' results.
 
 ### Validation
-The validation of the predictions can be viewed here: 
+The validation of the predictions can be viewed by running `results.py`
