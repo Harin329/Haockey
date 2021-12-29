@@ -80,7 +80,7 @@ Week 2:
 ### Feature Engineering
 Features identified to be an early indicator of power play goals:
 - powerPlayTimeOnIce_W
-- powerPlayGoals            (BorutaPy)
+- powerPlayGoals
 - powerPlayTimeOnIce
 - goals
 - powerPlayPoints
@@ -88,12 +88,12 @@ Features identified to be an early indicator of power play goals:
 - evenTimeOnIce
 - timeOnIce_W
 - evenTimeOnIce_W
-- pim_W                     (BorutaPy)
-- goals_W                   (BorutaPy)
+- shots                     (BorutaPy)
 - games                     (BorutaPy)
-- hits                      (BorutaPy)
+- goals_W                   (BorutaPy)
+- pim_W                     (BorutaPy)
+- assists_W                 (BorutaPy)
 - games_W
-- assists_W
 - shifts_W
 
 

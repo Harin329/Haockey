@@ -1,6 +1,7 @@
 import pandas as pd
 import csv
 
+flipFeatures = ['pim_W', 'pim', 'hits', 'hits_W', 'penaltyMinutes', 'penaltyMinutes_W']
 features = []
 
 with open('data/features.csv', mode ='r') as featureFile:
@@ -17,7 +18,10 @@ playerMap = {}
 for feature in features:
     print("==================================" + feature[0] + "====================================")
     start = playerCount
-    sorted_df = df.sort_values(by=[feature[0]], ascending=False).loc[:, ["Name", "Position", "Team", feature[0], "upcomingDifficulty"]]
+    sorted_df = df.sort_values([feature[0], 'upcomingDifficulty', 'powerPlayTimeOnIce_W'], ascending=[False, False, False]).loc[:, ["Name", "Position", "Team", feature[0], "upcomingDifficulty"]]
+    if (feature[0] in flipFeatures):
+        print(feature[0])
+        sorted_df = df.sort_values(by=[feature[0], 'upcomingDifficulty', 'powerPlayTimeOnIce_W'], ascending=[True, False, False]).loc[:, ["Name", "Position", "Team", feature[0], "upcomingDifficulty"]]
     print(sorted_df.head(10))
     for player in sorted_df.itertuples():
         playerMap[player[1]] = playerMap.get(player[1], 0) + start

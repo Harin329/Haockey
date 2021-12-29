@@ -26,18 +26,18 @@ def convertTimeToSeconds(timeString):
 
 # Calculate Matchup Difficulty
 def calculateDifficulty(newGame, playerTeam):
-    base = 50
+    base = 0
     homeTeam = newGame['home']['team']['id'] == playerTeam
     team = None
     opponent = None
 
     # Home Advantage
     if homeTeam:
-        base = 60
+        base = 100
         team = newGame['home']['team']['link']
         opponent = newGame['away']['team']['link']
     else:
-        base = 40
+        base = 70
         team = newGame['away']['team']['link']
         opponent = newGame['home']['team']['link']
 
@@ -49,12 +49,12 @@ def calculateDifficulty(newGame, playerTeam):
     statOpp = resOpp['teams'][0]['teamStats'][0]['splits'][0]['stat']
 
     # Team Strength Difference
-    evenTeam = statTeam['goalsPerGame'] * 10
-    evenOpp = statOpp['goalsAgainstPerGame'] * 10
+    evenTeam = statTeam['goalsPerGame'] * 1
+    evenOpp = statOpp['goalsAgainstPerGame'] * 1
     base += (evenTeam + evenOpp)
 
-    shotTeam = statTeam['shotsPerGame'] * 5
-    shotOpp = statOpp['shotsAllowed'] * 5
+    shotTeam = statTeam['shotsPerGame'] * 1
+    shotOpp = statOpp['shotsAllowed'] * 1
     base += (shotTeam + shotOpp)
 
     # Team Power Play Strength Difference
@@ -62,8 +62,8 @@ def calculateDifficulty(newGame, playerTeam):
     percentOpp = float(statTeam['penaltyKillPercentage'])
     base += (percentTeam + (100 - percentOpp))
 
-    ppTeam = statTeam['powerPlayGoals'] * 10
-    ppOpp = statOpp['powerPlayGoalsAgainst'] * 10
+    ppTeam = statTeam['powerPlayGoals'] * 2
+    ppOpp = statOpp['powerPlayGoalsAgainst'] * 2
     base += (ppTeam + ppOpp)
 
     return base
@@ -111,6 +111,9 @@ df = pd.DataFrame(columns=definitions.keys())
 current_df = pd.DataFrame(columns=current.keys())
 startDate = datetime.datetime(2021, 10, 12)
 
+today = datetime.datetime.today()
+endDate = today - datetime.timedelta(days=today.weekday())
+
 with open('data/players.csv', mode ='r') as playersFile:
     playerReader = csv.reader(playersFile)
     for player in playerReader:
@@ -134,34 +137,35 @@ with open('data/players.csv', mode ='r') as playersFile:
             
             # For game in week X
             for game in gameList:
-                if (datetime.datetime.strptime(game['date'], '%Y-%m-%d')) <= sunday:
-                    weekInfo = addGame(weekInfo, game)
-                    seasonInfo = addGame(seasonInfo, game)
-                    resultPPG += game['stat']['powerPlayGoals']
-                else:
-                    if (lastWeek != None):
-                        # Calculate Difficulty for Week X + 1
-                        teamID = game['team']['id']
-                        responseUpcoming = requests.get('https://statsapi.web.nhl.com/api/v1/schedule?teamId=' + str(teamID) + '&startDate=' + startDate.strftime("%Y-%m-%d") + '&endDate=' + sunday.strftime("%Y-%m-%d"))
-                        upcomingRes = responseUpcoming.json()
+                if (datetime.datetime.strptime(game['date'], '%Y-%m-%d')) < endDate:
+                    if (datetime.datetime.strptime(game['date'], '%Y-%m-%d')) <= sunday:
+                        weekInfo = addGame(weekInfo, game)
+                        seasonInfo = addGame(seasonInfo, game)
+                        resultPPG += game['stat']['powerPlayGoals']
+                    else:
+                        if (lastWeek != None):
+                            # Calculate Difficulty for Week X + 1
+                            teamID = game['team']['id']
+                            responseUpcoming = requests.get('https://statsapi.web.nhl.com/api/v1/schedule?teamId=' + str(teamID) + '&startDate=' + startDate.strftime("%Y-%m-%d") + '&endDate=' + sunday.strftime("%Y-%m-%d"))
+                            upcomingRes = responseUpcoming.json()
 
-                        for upcomingGame in upcomingRes['dates']:
-                            weekDifficulty = (weekDifficulty + calculateDifficulty(upcomingGame['games'][0]['teams'], teamID)) / 2
+                            for upcomingGame in upcomingRes['dates']:
+                                weekDifficulty = (weekDifficulty + calculateDifficulty(upcomingGame['games'][0]['teams'], teamID)) / 2
 
-                        # print('Write to Week: ' + str(sunday))
-                        df.loc[len(df)] = lastWeek + [weekDifficulty] + [resultPPG]
+                            # print('Write to Week: ' + str(sunday))
+                            df.loc[len(df)] = lastWeek + [weekDifficulty] + [resultPPG]
 
-                    row = playerInfo + list(seasonInfo.values()) + list(weekInfo.values())
-                    lastWeek = row
-                    
-                    sunday += datetime.timedelta(days=7)
-                    startDate = sunday - datetime.timedelta(days=6)
-                    resultPPG = 0
-                    weekInfo = baseWeekInfo.copy()
-                    weekInfo = addGame(weekInfo, game)
-                    seasonInfo = addGame(seasonInfo, game)
-                    resultPPG += game['stat']['powerPlayGoals']
-                    weekDifficulty = 0
+                        row = playerInfo + list(seasonInfo.values()) + list(weekInfo.values())
+                        lastWeek = row
+                        
+                        sunday += datetime.timedelta(days=7)
+                        startDate = sunday - datetime.timedelta(days=6)
+                        resultPPG = 0
+                        weekInfo = baseWeekInfo.copy()
+                        weekInfo = addGame(weekInfo, game)
+                        seasonInfo = addGame(seasonInfo, game)
+                        resultPPG += game['stat']['powerPlayGoals']
+                        weekDifficulty = 0
 
             
             # Write last week
