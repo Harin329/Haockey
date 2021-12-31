@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/harin329/Haockey">
-    <img src="./Haockey.png" alt="Logo" height="50" resize>
+    <img src="./Haockey.png" alt="Logo" height="329" resize>
   </a>
 
   <h3 align="center">Haockey</h3>
@@ -18,4 +18,4 @@
 
 ## Analysis
 
-A data analysis of the 2021-2022 NHL season.
+A data analysis of the 2021-2022 NHL season, predicting powerplay goals for upcoming weeks through ensemble feature selection. Emphasis on BorutaPy. See analysis/data/prediction.csv for weekly results. Project includes validation script for baseline comparison.
