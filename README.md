@@ -1,6 +1,14 @@
-# Haockey
+<p align="center">
+  <a href="https://github.com/harin329/Haockey">
+    <img src="./Haockey.png" alt="Logo" height="50" resize>
+  </a>
 
-All things fantasy hockey!
+  <h3 align="center">Haockey</h3>
+
+  <p align="center">
+    <strong>All things fantasy hockey!</strong>
+  </p>
+</p>
 
 ## Fantasy Pickup
 
