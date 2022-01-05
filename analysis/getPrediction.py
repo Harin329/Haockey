@@ -1,6 +1,8 @@
 import pandas as pd
 import csv
 
+pd.set_option('display.max_rows', None)
+
 flipFeatures = ['pim_W', 'pim', 'hits', 'hits_W', 'penaltyMinutes', 'penaltyMinutes_W']
 features = []
 

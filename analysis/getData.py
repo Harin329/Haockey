@@ -150,7 +150,7 @@ with open('data/players.csv', mode ='r') as playersFile:
                             upcomingRes = responseUpcoming.json()
 
                             for upcomingGame in upcomingRes['dates']:
-                                weekDifficulty = (weekDifficulty + calculateDifficulty(upcomingGame['games'][0]['teams'], teamID)) / 2
+                                weekDifficulty += calculateDifficulty(upcomingGame['games'][0]['teams'], teamID)
 
                             # print('Write to Week: ' + str(sunday))
                             df.loc[len(df)] = lastWeek + [weekDifficulty] + [resultPPG]
@@ -158,7 +158,8 @@ with open('data/players.csv', mode ='r') as playersFile:
                         row = playerInfo + list(seasonInfo.values()) + list(weekInfo.values())
                         lastWeek = row
                         
-                        sunday += datetime.timedelta(days=7)
+                        newDay = datetime.datetime.strptime(game['date'], '%Y-%m-%d')
+                        sunday = datetime.datetime.strptime(game['date'], '%Y-%m-%d') + datetime.timedelta(days=6 - newDay.weekday())
                         startDate = sunday - datetime.timedelta(days=6)
                         resultPPG = 0
                         weekInfo = baseWeekInfo.copy()
@@ -178,7 +179,7 @@ with open('data/players.csv', mode ='r') as playersFile:
                 row = playerInfo + list(seasonInfo.values()) + list(weekInfo.values())
 
                 for upcomingGame in upcomingRes['dates']:
-                    weekDifficulty = (weekDifficulty + calculateDifficulty(upcomingGame['games'][0]['teams'], teamID)) / 2
+                    weekDifficulty += calculateDifficulty(upcomingGame['games'][0]['teams'], teamID)
 
                 current_df.loc[len(current_df)] = row + [weekDifficulty]
 
