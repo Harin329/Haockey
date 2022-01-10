@@ -103,7 +103,7 @@ To predict:
 1. Run `getData.py` to get player data
 2. Run `getFeatures.py` to select features
 3. Run `getPrediction.py` to predict
-4. Modify date range & run `getTruth.py` to get truth results
+4. Run `getTruth.py` to get truth results
 5. Run `results.py` to get benchmark results
 
 result_baseline will contain the week X 'control' results (PPG scored last week) as well as being used as week X + 1 'truth' results.
