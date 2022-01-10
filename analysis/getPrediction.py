@@ -42,14 +42,14 @@ sorted_df = df.sort_values(by=["powerPlayGoals_W"], ascending=False).loc[:, ["Na
 
 with open("data/result_baseline.csv", "a") as f:
     writer = csv.writer(f)
-    writer.writerow(['NEW_WEEK'])
+    writer.writerow(['==================================NEW_WEEK===================================='])
     for player in sorted_df.nlargest(10, ['powerPlayGoals_W'], keep='all').itertuples():
         writer.writerow([player[1]])
 print("Baseline Results Saved to result_baseline.csv!")
 
 with open("data/result_prediction.csv", "a") as fa:
     writer = csv.writer(fa)
-    writer.writerow(['NEW_WEEK'])
+    writer.writerow(['==================================NEW_WEEK===================================='])
     for player in players[:10]:
         writer.writerow([player[0]])
 print("Prediction Validation Saved to result_prediction.csv!")
