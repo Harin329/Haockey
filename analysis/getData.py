@@ -112,7 +112,10 @@ current_df = pd.DataFrame(columns=current.keys())
 startDate = datetime.datetime(2021, 10, 12)
 
 today = datetime.datetime.today()
-endDate = today - datetime.timedelta(days=today.weekday()) - datetime.timedelta(hours=today.hour) - datetime.timedelta(minutes=today.minute) - datetime.timedelta(seconds=today.second) - datetime.timedelta(microseconds=today.microsecond)
+#endDate = today - datetime.timedelta(days=today.weekday()) - datetime.timedelta(hours=today.hour) - datetime.timedelta(minutes=today.minute) - datetime.timedelta(seconds=today.second) - datetime.timedelta(microseconds=today.microsecond)
+
+# Sunday
+endDate = today
 
 with open('data/players.csv', mode ='r') as playersFile:
     playerReader = csv.reader(playersFile)

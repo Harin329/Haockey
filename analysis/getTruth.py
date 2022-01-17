@@ -7,7 +7,10 @@ print("==================================Get Truth==============================
 df = pd.DataFrame(columns=["Name", "PPG_W"])
 today = datetime.datetime.today()
 
-endDate = today - datetime.timedelta(days=today.weekday()) - datetime.timedelta(hours=today.hour) - datetime.timedelta(minutes=today.minute) - datetime.timedelta(seconds=today.second) - datetime.timedelta(microseconds=today.microsecond)
+# Sunday
+endDate = today
+
+# endDate = today - datetime.timedelta(days=today.weekday()) - datetime.timedelta(hours=today.hour) - datetime.timedelta(minutes=today.minute) - datetime.timedelta(seconds=today.second) - datetime.timedelta(microseconds=today.microsecond)
 startDate = endDate - datetime.timedelta(days=7)
 
 with open('data/players.csv', mode ='r') as playersFile:
