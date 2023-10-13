@@ -22,10 +22,9 @@ A data analysis of the 2021-2022 NHL season, predicting powerplay goals for upco
 
 ## Deployment
 
-1. chmod +x myscript.py
-2. nohup /path/to/script/myscript.py &
-3. logout
-4. ps -e | grep myscript.py
+1. nohup python3 -u main.py &
+2. logout
+3. ps -e | grep python
 
-## Deployment Troubleshooting
+## Deployment Logs
 cat nohup.out
