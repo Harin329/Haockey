@@ -3,3 +3,4 @@ yahoo_fantasy_api
 python-dotenv
 schedule
 matplotlib
+boto3
