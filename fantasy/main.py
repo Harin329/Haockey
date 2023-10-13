@@ -11,6 +11,7 @@ sc = OAuth2(None, None, from_file='../auth/auth.json')
 session = boto3.Session(
     aws_access_key_id=config["AWS_ACCESS_KEY"],
     aws_secret_access_key=config["AWS_SECRET_KEY"],
+    region_name="us-east-1"
 )
 
 if not sc.token_is_valid():
@@ -55,6 +56,7 @@ def manualPickup():
     # team.add_and_drop_players()
 
 schedule.every().day.at("00:00").do(pickup)
+print("Job Scheduled! Good Luck!")
 
 while True:
     schedule.run_pending()
