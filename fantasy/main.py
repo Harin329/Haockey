@@ -34,6 +34,9 @@ table = dynamodb.Table('Fantasy')
 ## Weekly Pickup (Add, Drop)
 def pickup():
     print("Weekly Pickup...")
+    if not sc.token_is_valid():
+        print("Refreshing Token...")
+        sc.refresh_access_token()
     # List all partition keys in table
     response = table.scan()
     # get partition key for each player
@@ -43,7 +46,8 @@ def pickup():
         try:
             team.add_and_drop_players(addID, dropID)
             print("Dropped " + str(dropID) + " and added " + str(addID))
-        except:
+        except Exception as e:
+            print(e)
             print("Failed to drop " + str(dropID) + " and add " + str(addID))
 
 
@@ -55,7 +59,9 @@ def manualPickup():
     # team.add_and_drop_players(6002, 8287)
     # team.add_and_drop_players()
 
-schedule.every().day.at("00:00").do(pickup)
+# Midnight and Retry
+schedule.every().day.at("07:00").do(pickup)
+schedule.every().day.at("07:01").do(pickup)
 print("Job Scheduled! Good Luck!")
 
 while True:
