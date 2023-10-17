@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from yahoo_oauth import OAuth2
 import yahoo_fantasy_api as yfa
 import schedule
@@ -60,10 +61,18 @@ def manualPickup():
     # team.add_and_drop_players()
 
 # Midnight and Retry
-schedule.every().day.at("07:00").do(pickup)
-schedule.every().day.at("07:01").do(pickup)
+#schedule.every().day.at("07:00").do(pickup)
+#schedule.every().day.at("07:01").do(pickup)
 print("Job Scheduled! Good Luck!")
 
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+
+#while True:
+    #schedule.run_pending()
+    #time.sleep(1)
+try:
+    pickup()
+except Exception as e:
+    print(e)
+
+time.sleep(30)
+pickup()
