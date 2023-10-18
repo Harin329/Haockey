@@ -6,6 +6,8 @@ import time
 import boto3
 from dotenv import dotenv_values
 
+start_time = time.time()
+
 config = dotenv_values("../auth/.env")
 
 sc = OAuth2(None, None, from_file='../auth/auth.json')
@@ -31,15 +33,13 @@ print("Team Roster: " + str(team.roster()))
 
 dynamodb = session.resource('dynamodb')
 table = dynamodb.Table('Fantasy')
+# List all partition keys in table
+response = table.scan()
 
 ## Weekly Pickup (Add, Drop)
 def pickup():
     print("Weekly Pickup...")
-    if not sc.token_is_valid():
-        print("Refreshing Token...")
-        sc.refresh_access_token()
-    # List all partition keys in table
-    response = table.scan()
+    status = True
     # get partition key for each player
     for player in response['Items']:
         dropID = player['DropID']
@@ -50,6 +50,9 @@ def pickup():
         except Exception as e:
             print(e)
             print("Failed to drop " + str(dropID) + " and add " + str(addID))
+            status = False
+
+    return status
 
 
 ## Manual Weekly Pickup (Add, Drop)
@@ -69,10 +72,17 @@ print("Job Scheduled! Good Luck!")
 #while True:
     #schedule.run_pending()
     #time.sleep(1)
+
+retry = 0
 try:
-    pickup()
+    print(time.time() - start_time)
+    finalStatus = pickup()
+    while(finalStatus == False and retry < 50):
+        retry = retry + 1
+        time.sleep(2)
+        finalStatus = pickup()
+
 except Exception as e:
     print(e)
 
-time.sleep(30)
-pickup()
+print(time.time() - start_time)
