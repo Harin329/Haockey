@@ -3,6 +3,7 @@ from yahoo_oauth import OAuth2
 import yahoo_fantasy_api as yfa
 import schedule
 import time
+import datetime
 import boto3
 from dotenv import dotenv_values
 
@@ -40,6 +41,8 @@ response = table.scan()
 def pickup():
     print("Weekly Pickup...")
     status = True
+    if (datetime.datetime.now().hour != 15):
+        return False
     # get partition key for each player
     for player in response['Items']:
         dropID = player['DropID']
@@ -77,9 +80,9 @@ retry = 0
 try:
     print(time.time() - start_time)
     finalStatus = pickup()
-    while(finalStatus == False and retry < 50):
+    while(finalStatus == False and retry < 80):
         retry = retry + 1
-        time.sleep(2)
+        time.sleep(1)
         finalStatus = pickup()
 
 except Exception as e:
